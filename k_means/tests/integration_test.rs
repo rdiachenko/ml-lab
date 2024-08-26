@@ -73,7 +73,7 @@ fn it_clusters_with_greedy_kmeanspp() {
     assert!(iters <= 100);
 }
 
-fn assert(centroids: &Vec<Vec<f64>>, min: f64, max: f64, k: usize) {
+fn assert(centroids: &[Vec<f64>], min: f64, max: f64, k: usize) {
     assert_eq!(centroids.len(), k);
     assert!(
         centroids.iter().all(|centroid| centroid.iter().all(|&x| x >= min && x <= max)),

@@ -71,7 +71,7 @@ mod tests {
         ]
     }
 
-    fn assert(centroids: &Vec<Vec<f64>>, k: usize) {
+    fn assert(centroids: &[Vec<f64>], k: usize) {
         assert_eq!(centroids.len(), k);
         assert!(
             centroids.iter().all(|centroid| centroid.iter().all(|&x| x >= 1.0 && x <= 7.0)),

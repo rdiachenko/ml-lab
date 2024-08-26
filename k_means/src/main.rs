@@ -41,8 +41,8 @@ fn parse_strategy(s: &str) -> Option<CentroidInitStrategy> {
 fn transform(image: &DynamicImage) -> Vec<Vec<f64>> {
     image.pixels().map(|pixel| pixel.2.0).map(|rgba| {
         let mut rgb = Vec::new();
-        for i in 0..3 {
-            rgb.push(normalize(rgba[i]));
+        for val in rgba.iter().take(3) {
+            rgb.push(normalize(*val));
         }
         rgb
     }).collect()
@@ -56,7 +56,7 @@ fn denormalize(val: f64) -> u8 {
     (val * 255.0) as u8
 }
 
-fn compress(image: &DynamicImage, centroids: &Vec<Vec<f64>>, clusters: &Vec<usize>) -> image::ImageBuffer<Rgb<u8>, Vec<u8>> {
+fn compress(image: &DynamicImage, centroids: &[Vec<f64>], clusters: &[usize]) -> image::ImageBuffer<Rgb<u8>, Vec<u8>> {
     let mut result = image::ImageBuffer::new(image.width(), image.height());
     for (j, i, pixel) in result.enumerate_pixels_mut() {
         let point: usize = (i * image.width() + j) as usize;

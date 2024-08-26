@@ -2,7 +2,7 @@ use super::macqueen;
 use crate::run_k_means;
 use rand::seq::SliceRandom;
 
-pub fn init_centroids(data: &Vec<Vec<f64>>, k: usize, j: usize, max_iters: usize, eps: f64) -> Vec<Vec<f64>> {
+pub fn init_centroids(data: &[Vec<f64>], k: usize, j: usize, max_iters: usize, eps: f64) -> Vec<Vec<f64>> {
     // randomly partition data onto j subsets
     let mut rng = rand::thread_rng();
     let mut points: Vec<usize> = (0..data.len()).collect();

@@ -2,16 +2,16 @@ use crate::squared_euclidean_dist;
 use rand::distributions::Uniform;
 use rand::Rng;
 
-pub fn init_centroids(data: &Vec<Vec<f64>>, k: usize, samples_per_iter: usize) -> Vec<Vec<f64>> {
+pub fn init_centroids(data: &[Vec<f64>], k: usize, samples_per_iter: usize) -> Vec<Vec<f64>> {
     let local_centers_n = if samples_per_iter > 0 {
         samples_per_iter
     } else {
-        (2 + (k as f64).log2() as i32) as usize
+        (2.0 + (k as f64).log2()).floor() as usize
     };
 
-    let mut result = vec![];
     let mut rng = rand::thread_rng();
     let initial_centroid = rng.gen_range(0..data.len());
+    let mut result = vec![];
     result.push(data[initial_centroid].clone());
     let mut min_dists = vec![f64::MAX; data.len()];
     let mut sse = 0f64;
@@ -50,8 +50,8 @@ pub fn init_centroids(data: &Vec<Vec<f64>>, k: usize, samples_per_iter: usize) -
         for candidate_index in 0..centroid_candidates.len() {
             let mut new_min_dists = vec![];
             let mut new_sse = 0.0;
-            for dist_index in 0..min_dists.len() {
-                let dist = f64::min(min_dists[dist_index], dist_to_candidates[candidate_index][dist_index]);
+            for (dist_index, min_dist) in min_dists.iter().enumerate() {
+                let dist = f64::min(*min_dist, dist_to_candidates[candidate_index][dist_index]);
                 new_min_dists.push(dist);
                 new_sse += dist;
             }

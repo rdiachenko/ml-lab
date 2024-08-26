@@ -2,7 +2,7 @@ use crate::squared_euclidean_dist;
 use rand::Rng;
 use std::collections::HashSet;
 
-pub fn init_centroids(data: &Vec<Vec<f64>>, k: usize) -> Vec<Vec<f64>> {
+pub fn init_centroids(data: &[Vec<f64>], k: usize) -> Vec<Vec<f64>> {
     let mut centroids = HashSet::new();
     let mut rng = rand::thread_rng();
     centroids.insert(rng.gen_range(0..data.len()));
