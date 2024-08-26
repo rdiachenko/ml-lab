@@ -23,7 +23,9 @@ fn main() {
     let (centroids, clusters, sse, iters) = k_means::cluster(&img_data, k, &strategy);
     println!("Converged in {} iterations, sse={}", iters, sse);
     let compressed_img = compress(&original_img, &centroids, &clusters);
-    compressed_img.save(format!("{:?}-compressed-{}", strategy, image_name)).unwrap()
+    compressed_img
+        .save(format!("{:?}-compressed-{}", strategy, image_name))
+        .unwrap()
 }
 
 fn parse_strategy(s: &str) -> Option<CentroidInitStrategy> {
@@ -39,13 +41,17 @@ fn parse_strategy(s: &str) -> Option<CentroidInitStrategy> {
 }
 
 fn transform(image: &DynamicImage) -> Vec<Vec<f64>> {
-    image.pixels().map(|pixel| pixel.2.0).map(|rgba| {
-        let mut rgb = Vec::new();
-        for val in rgba.iter().take(3) {
-            rgb.push(normalize(*val));
-        }
-        rgb
-    }).collect()
+    image
+        .pixels()
+        .map(|pixel| pixel.2 .0)
+        .map(|rgba| {
+            let mut rgb = Vec::new();
+            for val in rgba.iter().take(3) {
+                rgb.push(normalize(*val));
+            }
+            rgb
+        })
+        .collect()
 }
 
 fn normalize(val: u8) -> f64 {
@@ -56,7 +62,11 @@ fn denormalize(val: f64) -> u8 {
     (val * 255.0) as u8
 }
 
-fn compress(image: &DynamicImage, centroids: &[Vec<f64>], clusters: &[usize]) -> image::ImageBuffer<Rgb<u8>, Vec<u8>> {
+fn compress(
+    image: &DynamicImage,
+    centroids: &[Vec<f64>],
+    clusters: &[usize],
+) -> image::ImageBuffer<Rgb<u8>, Vec<u8>> {
     let mut result = image::ImageBuffer::new(image.width(), image.height());
     for (j, i, pixel) in result.enumerate_pixels_mut() {
         let point: usize = (i * image.width() + j) as usize;

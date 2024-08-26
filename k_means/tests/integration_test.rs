@@ -76,7 +76,9 @@ fn it_clusters_with_greedy_kmeanspp() {
 fn assert(centroids: &[Vec<f64>], min: f64, max: f64, k: usize) {
     assert_eq!(centroids.len(), k);
     assert!(
-        centroids.iter().all(|centroid| centroid.iter().all(|&x| x >= min && x <= max)),
+        centroids
+            .iter()
+            .all(|centroid| centroid.iter().all(|&x| x >= min && x <= max)),
         "Some centroids are out of expected range [{}; {}]: {:?}",
         min,
         max,
@@ -90,11 +92,9 @@ fn data() -> (Vec<Vec<f64>>, f64, f64) {
     let rows = 10;
     let columns = 5;
     let mut rng = rand::thread_rng();
-    let data = (0..rows).map(|_| {
-        (0..columns).map(|_| {
-            rng.gen_range(min..=max)
-        }).collect()
-    }).collect();
+    let data = (0..rows)
+        .map(|_| (0..columns).map(|_| rng.gen_range(min..=max)).collect())
+        .collect();
 
     (data, min, max)
 }

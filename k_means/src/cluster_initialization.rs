@@ -1,8 +1,8 @@
+pub mod bradley_fayyad;
 pub mod forgy;
+pub mod kmeanspp;
 pub mod macqueen;
 pub mod maximin;
-pub mod bradley_fayyad;
-pub mod kmeanspp;
 
 #[derive(Debug)]
 pub enum CentroidInitStrategy {
@@ -74,7 +74,9 @@ mod tests {
     fn assert(centroids: &[Vec<f64>], k: usize) {
         assert_eq!(centroids.len(), k);
         assert!(
-            centroids.iter().all(|centroid| centroid.iter().all(|&x| x >= 1.0 && x <= 7.0)),
+            centroids
+                .iter()
+                .all(|centroid| centroid.iter().all(|&x| x >= 1.0 && x <= 7.0)),
             "Some centroids have non-positive values: {:?}",
             centroids
         );

@@ -23,15 +23,22 @@ pub fn init_centroids(data: &[Vec<f64>], k: usize, samples_per_iter: usize) -> V
 
     let range = Uniform::new(0.0, 1.0);
     for _ in 1..k {
-        let dists_cumsum: Vec<f64> = min_dists.iter()
+        let dists_cumsum: Vec<f64> = min_dists
+            .iter()
             .scan(0.0, |acc, &dist| {
                 *acc += dist;
                 Some(*acc)
-            }).collect();
-        let centroid_candidates: Vec<usize> = (0..local_centers_n).map(|_| {
-            let rand_val = rng.sample(range) * sse;
-            dists_cumsum.iter().position(|&dist| dist > rand_val).unwrap_or(0)
-        }).collect();
+            })
+            .collect();
+        let centroid_candidates: Vec<usize> = (0..local_centers_n)
+            .map(|_| {
+                let rand_val = rng.sample(range) * sse;
+                dists_cumsum
+                    .iter()
+                    .position(|&dist| dist > rand_val)
+                    .unwrap_or(0)
+            })
+            .collect();
 
         let mut dist_to_candidates = Vec::new();
         for candidate_index in 0..centroid_candidates.len() {

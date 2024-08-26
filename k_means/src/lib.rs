@@ -1,17 +1,21 @@
 mod cluster_initialization;
 
-pub use crate::cluster_initialization::CentroidInitStrategy;
-use crate::cluster_initialization::CentroidInitStrategy::*;
+use crate::cluster_initialization::bradley_fayyad;
 use crate::cluster_initialization::forgy;
+use crate::cluster_initialization::kmeanspp;
 use crate::cluster_initialization::macqueen;
 use crate::cluster_initialization::maximin;
-use crate::cluster_initialization::bradley_fayyad;
-use crate::cluster_initialization::kmeanspp;
+pub use crate::cluster_initialization::CentroidInitStrategy;
+use crate::cluster_initialization::CentroidInitStrategy::*;
 
 const MAX_ITERATIONS: usize = 100;
 const EPS: f64 = 1e-6;
 
-pub fn cluster(data: &[Vec<f64>], k: usize, init_strategy: &CentroidInitStrategy) -> (Vec<Vec<f64>>, Vec<usize>, f64, usize) {
+pub fn cluster(
+    data: &[Vec<f64>],
+    k: usize,
+    init_strategy: &CentroidInitStrategy,
+) -> (Vec<Vec<f64>>, Vec<usize>, f64, usize) {
     println!("finding initial clusters");
     let initial_centroids = match init_strategy {
         Forgy => forgy::init_centroids(data, k),
@@ -19,13 +23,18 @@ pub fn cluster(data: &[Vec<f64>], k: usize, init_strategy: &CentroidInitStrategy
         Maximin => maximin::init_centroids(data, k),
         BradleyFayyad => bradley_fayyad::init_centroids(data, k, 10, MAX_ITERATIONS, EPS),
         KmeansPP => kmeanspp::init_centroids(data, k, 1),
-        GreedyKmeansPP => kmeanspp::init_centroids(data, k, 0)
+        GreedyKmeansPP => kmeanspp::init_centroids(data, k, 0),
     };
     println!("running k-means clustering");
     run_k_means(data, &initial_centroids, MAX_ITERATIONS, EPS)
 }
 
-fn run_k_means(data: &[Vec<f64>], initial_centroids: &[Vec<f64>], max_iters: usize, eps: f64) -> (Vec<Vec<f64>>, Vec<usize>, f64, usize) {
+fn run_k_means(
+    data: &[Vec<f64>],
+    initial_centroids: &[Vec<f64>],
+    max_iters: usize,
+    eps: f64,
+) -> (Vec<Vec<f64>>, Vec<usize>, f64, usize) {
     let k = initial_centroids.len();
     let mut centroids = initial_centroids.to_vec();
     let mut clusters = vec![0; data.len()];
@@ -66,9 +75,7 @@ fn compute_clusters(data: &[Vec<f64>], centroids: &[Vec<f64>]) -> (Vec<usize>, f
 }
 
 fn squared_euclidean_dist(a: &[f64], b: &[f64]) -> f64 {
-    a.iter().zip(b.iter())
-        .map(|(x, y)| (x - y).powi(2))
-        .sum()
+    a.iter().zip(b.iter()).map(|(x, y)| (x - y).powi(2)).sum()
 }
 
 fn compute_centroids(data: &[Vec<f64>], clusters: &[usize], k: usize) -> Vec<Vec<f64>> {
@@ -139,20 +146,17 @@ mod tests {
             vec![5.0, 5.0],
             vec![6.0, 5.5],
         ];
-        let centroids = vec![
-            vec![1.0, 2.0],
-            vec![5.5, 5.25],
-        ];
+        let centroids = vec![vec![1.0, 2.0], vec![5.5, 5.25]];
 
         let (clusters, sse) = compute_clusters(&data, &centroids);
 
         assert_eq!(clusters, vec![0, 0, 1, 1]);
 
         // Manual calculation of SSE
-        let expected_sse = squared_euclidean_dist(&data[0], &centroids[0]) +
-            squared_euclidean_dist(&data[1], &centroids[0]) +
-            squared_euclidean_dist(&data[2], &centroids[1]) +
-            squared_euclidean_dist(&data[3], &centroids[1]);
+        let expected_sse = squared_euclidean_dist(&data[0], &centroids[0])
+            + squared_euclidean_dist(&data[1], &centroids[0])
+            + squared_euclidean_dist(&data[2], &centroids[1])
+            + squared_euclidean_dist(&data[3], &centroids[1]);
         assert!((sse - expected_sse).abs() < 1e-6); // using a small threshold to avoid floating-point precision issues
     }
 
@@ -262,14 +266,12 @@ mod tests {
             vec![3.0, 4.0],
             vec![5.0, 6.0],
         ];
-        let initial_centroids = vec![
-            vec![1.0, 2.0],
-            vec![5.0, 6.0],
-        ];
+        let initial_centroids = vec![vec![1.0, 2.0], vec![5.0, 6.0]];
         let max_iters = 10;
         let eps = 0.0001;
 
-        let (centroids, clusters, sse, iters) = run_k_means(&data, &initial_centroids, max_iters, eps);
+        let (centroids, clusters, sse, iters) =
+            run_k_means(&data, &initial_centroids, max_iters, eps);
 
         assert_eq!(clusters, vec![0, 0, 0, 1]);
         assert_eq!(centroids.len(), 2);
@@ -285,12 +287,9 @@ mod tests {
             vec![3.0, 4.0],
             vec![5.0, 6.0],
         ];
-        let initial_centroids = vec![
-            vec![1.0, 2.0],
-            vec![5.0, 6.0],
-        ];
+        let initial_centroids = vec![vec![1.0, 2.0], vec![5.0, 6.0]];
         let max_iters = 100;
-        let eps = 0.1;  // Larger epsilon for faster convergence
+        let eps = 0.1; // Larger epsilon for faster convergence
 
         let (_, _, _, iters) = run_k_means(&data, &initial_centroids, max_iters, eps);
 
