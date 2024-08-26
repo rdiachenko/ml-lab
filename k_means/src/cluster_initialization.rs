@@ -76,7 +76,7 @@ mod tests {
         assert!(
             centroids
                 .iter()
-                .all(|centroid| centroid.iter().all(|&x| x >= 1.0 && x <= 7.0)),
+                .all(|centroid| centroid.iter().all(|&x| (1.0..=7.0).contains(&x))),
             "Some centroids have non-positive values: {:?}",
             centroids
         );

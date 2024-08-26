@@ -78,7 +78,7 @@ fn assert(centroids: &[Vec<f64>], min: f64, max: f64, k: usize) {
     assert!(
         centroids
             .iter()
-            .all(|centroid| centroid.iter().all(|&x| x >= min && x <= max)),
+            .all(|centroid| centroid.iter().all(|&x| (min..=max).contains(&x))),
         "Some centroids are out of expected range [{}; {}]: {:?}",
         min,
         max,
