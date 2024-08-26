@@ -68,3 +68,39 @@ fn compress(image: &DynamicImage, centroids: &[Vec<f64>], clusters: &[usize]) ->
     }
     result
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use image::{ImageBuffer, Rgba, RgbaImage};
+    use std::collections::HashSet;
+
+    #[test]
+    fn test_image_compression() {
+        let width = 10;
+        let height = 10;
+        let k = 5; // Number of desired clusters/colors
+        let strategy = GreedyKmeansPP;
+
+        // Create an image with more than 'k' distinct colors
+        let mut img: RgbaImage = ImageBuffer::new(width, height);
+        for (x, y, pixel) in img.enumerate_pixels_mut() {
+            let r = (x * 47 % 255) as u8;
+            let g = (y * 47 % 255) as u8;
+            let b = (x * y % 255) as u8;
+            *pixel = Rgba([r, g, b, 0]);
+        }
+
+        let original_img = DynamicImage::ImageRgba8(img.clone());
+        let img_data = transform(&original_img);
+        let (centroids, clusters, _, _) = k_means::cluster(&img_data, k, &strategy);
+        let compressed_img = compress(&original_img, &centroids, &clusters);
+
+        assert_eq!(compressed_img.width(), width);
+        assert_eq!(compressed_img.height(), height);
+
+        // Check the number of unique colors in the compressed image
+        let unique_colors: HashSet<_> = compressed_img.pixels().map(|p| p.0).collect();
+        assert_eq!(unique_colors.len(), k);
+    }
+}
