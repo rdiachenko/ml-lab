@@ -1,6 +1,15 @@
 # K-Means Image Compression
 
-Implements a k-means clustering algorithm and applies it to image compression. It provides various centroid initialization strategies and allows users to compress images by reducing the number of colors used.
+Implements a k-means clustering algorithm and applies it to image compression. It provides various centroid initialization strategies and allows to compress images by reducing the number of colors used.
+
+## Table of Contents
+
+1. [Features](#features)
+2. [How It Works](#how-it-works)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Results](#results)
+6. [Documentation](#documentation)
 
 ## Features
 
@@ -20,7 +29,7 @@ Implements a k-means clustering algorithm and applies it to image compression. I
 The k-means image compression algorithm works as follows:
 
 1. **Image Transformation**: The input image is transformed into a list of RGB values, where each pixel is represented as a point in 3D space.
-2. **Centroid Initialization**: K initial centroids are chosen using one of the available strategies (e.g., K-means++).
+2. **Centroid Initialization**: K initial centroids are chosen using one of the available strategies (e.g., k-means++).
 3. **Clustering**: The k-means algorithm is applied:
     - Each pixel is assigned to the nearest centroid.
     - Centroids are recalculated based on the mean of all pixels assigned to them.
@@ -79,6 +88,15 @@ This command will compress the image `sky.png` to use 16 colors, using the K-mea
 Comparison of k-means initialization strategies for image compression (16 Colors):
 
 ![K-means image compression with 16 colors](k-means-image-compression-k16.png "K-means image compression with 16 colors")
+
+### Observations
+
+- All compression strategies maintain the overall structure and colors of the original image quite well, considering they're using only 16 colors.
+- Subtle differences can be observed in the sky area, particularly in the rendering of cloud details and color gradients.
+- Greedy k-means++ performs the best, with the lowest Sum of Squared Errors (SSE), indicating it most accurately represents the original image colors.
+- Maximin and Bradley-Fayyad methods follow closely, with only slightly higher SSE values.
+- MacQueen and Forgy methods show noticeably higher SSE values, suggesting they are less effective for this particular image.
+- Original image size is 4.65 MB. Compressed image size is 1 MB. That is 21.5% reduction in size.
 
 ## Documentation
 
