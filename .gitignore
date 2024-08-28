@@ -14,3 +14,7 @@ target/
 
 # IDE
 .idea
+
+# Images
+/*.jpg
+/*.png
