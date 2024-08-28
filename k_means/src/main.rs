@@ -7,12 +7,13 @@ use image::{DynamicImage, GenericImageView, Rgb};
 use k_means::CentroidInitStrategy;
 use k_means::CentroidInitStrategy::*;
 use std::env;
+use std::path::Path;
 use std::str::FromStr;
 
 /// Main function to run the image compression program
 ///
 /// Usage: program_name IMAGE K STRATEGY
-/// Example: program_name sky.png 16 m
+/// Example: program_name /path/to/sky.png 16 m
 ///
 /// Arguments:
 /// * IMAGE: Path to the input image file
@@ -23,23 +24,35 @@ fn main() {
 
     if args.len() != 4 {
         eprintln!("Usage: {} IMAGE K STRATEGY", args[0]);
-        eprintln!("Example: {} sky.png 16 m", args[0]);
+        eprintln!("Example: {} /path/to/sky.png 16 m", args[0]);
         std::process::exit(1);
     }
 
-    let image_name = &args[1];
+    let image_path = Path::new(&args[1]);
     let k = usize::from_str(&args[2]).expect("error parsing number of clusters");
     let strategy = parse_strategy(&args[3]).expect("error parsing centroid initial strategy");
 
-    let original_img = image::open(image_name).unwrap();
+    let original_img = image::open(image_path).expect("failed to open image");
     let img_data = transform(&original_img);
 
     let (centroids, clusters, sse, iters) = k_means::cluster(&img_data, k, &strategy);
     println!("Converged in {} iterations, sse={}", iters, sse);
     let compressed_img = compress(&original_img, &centroids, &clusters);
+
+    let image_name = image_path
+        .file_name()
+        .expect("invalid image path")
+        .to_str()
+        .expect("invalid image name");
+    let compressed_image_name = format!("{:?}-compressed-{}", strategy, image_name);
+    let compressed_image_path = env::current_dir()
+        .expect("failed to get current directory")
+        .join(compressed_image_name);
+
     compressed_img
-        .save(format!("{:?}-compressed-{}", strategy, image_name))
-        .unwrap()
+        .save(&compressed_image_path)
+        .expect("failed to save compressed image");
+    println!("Compressed image saved to: {:?}", compressed_image_path);
 }
 
 /// Parse the centroid initialization strategy from a single letter code
