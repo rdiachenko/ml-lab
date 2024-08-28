@@ -1,3 +1,8 @@
+//! K-Means Clustering Main Module
+//!
+//! This module implements the core k-means clustering algorithm and provides
+//! the main entry point for running k-means with various initialization strategies.
+
 mod cluster_initialization;
 
 use crate::cluster_initialization::bradley_fayyad;
@@ -8,9 +13,40 @@ use crate::cluster_initialization::maximin;
 pub use crate::cluster_initialization::CentroidInitStrategy;
 use crate::cluster_initialization::CentroidInitStrategy::*;
 
+/// Maximum number of iterations for the k-means algorithm
 const MAX_ITERATIONS: usize = 100;
+
+/// Convergence threshold for the k-means algorithm
 const EPS: f64 = 1e-6;
 
+/// Run k-means clustering on the given data
+///
+/// This function serves as the main entry point for k-means clustering. It initializes
+/// the centroids using the specified strategy and then runs the k-means algorithm.
+///
+/// # Arguments
+///
+/// * `data` - A slice of vectors, where each vector represents a data point
+/// * `k` - The number of clusters to create
+/// * `init_strategy` - The strategy to use for initializing centroids
+///
+/// # Returns
+///
+/// A tuple containing:
+/// * The final centroids (`Vec<Vec<f64>>`)
+/// * The cluster assignments for each data point (`Vec<usize>`)
+/// * The final Sum of Squared Errors (SSE) (`f64`)
+/// * The number of iterations performed (`usize`)
+///
+/// # Example
+///
+/// ```
+/// # use k_means::CentroidInitStrategy;
+/// let data = vec![vec![1.0, 2.0], vec![3.0, 4.0], vec![5.0, 6.0], vec![7.0, 8.0]];
+/// let k = 2;
+/// let init_strategy = CentroidInitStrategy::KmeansPP;
+/// let (centroids, assignments, sse, iterations) = k_means::cluster(&data, k, &init_strategy);
+/// ```
 pub fn cluster(
     data: &[Vec<f64>],
     k: usize,
@@ -29,6 +65,25 @@ pub fn cluster(
     run_k_means(data, &initial_centroids, MAX_ITERATIONS, EPS)
 }
 
+/// Run the k-means algorithm
+///
+/// This function implements the core k-means algorithm, iteratively assigning points
+/// to clusters and updating centroids until convergence or maximum iterations.
+///
+/// # Arguments
+///
+/// * `data` - A slice of vectors, where each vector represents a data point
+/// * `initial_centroids` - The initial centroids to start the algorithm with
+/// * `max_iters` - The maximum number of iterations to run
+/// * `eps` - The convergence threshold
+///
+/// # Returns
+///
+/// A tuple containing:
+/// * The final centroids (`Vec<Vec<f64>>`)
+/// * The cluster assignments for each data point (`Vec<usize>`)
+/// * The final Sum of Squared Errors (SSE) (`f64`)
+/// * The number of iterations performed (`usize`)
 fn run_k_means(
     data: &[Vec<f64>],
     initial_centroids: &[Vec<f64>],
@@ -55,6 +110,21 @@ fn run_k_means(
     (centroids, clusters, sse, iters)
 }
 
+/// Assign data points to the nearest centroid
+///
+/// This function computes the cluster assignments for each data point
+/// and calculates the Sum of Squared Errors (SSE).
+///
+/// # Arguments
+///
+/// * `data` - A slice of vectors, where each vector represents a data point
+/// * `centroids` - The current centroids
+///
+/// # Returns
+///
+/// A tuple containing:
+/// * The cluster assignments for each data point (`Vec<usize>`)
+/// * The Sum of Squared Errors (SSE) (f64)
 fn compute_clusters(data: &[Vec<f64>], centroids: &[Vec<f64>]) -> (Vec<usize>, f64) {
     let mut clusters: Vec<usize> = vec![0; data.len()];
     let mut sse = 0f64;
@@ -74,10 +144,31 @@ fn compute_clusters(data: &[Vec<f64>], centroids: &[Vec<f64>]) -> (Vec<usize>, f
     (clusters, sse)
 }
 
+/// Compute the squared Euclidean distance between two points
+///
+/// # Arguments
+///
+/// * `a` - First point
+/// * `b` - Second point
+///
+/// # Returns
+///
+/// The squared Euclidean distance between `a` and `b`
 fn squared_euclidean_dist(a: &[f64], b: &[f64]) -> f64 {
     a.iter().zip(b.iter()).map(|(x, y)| (x - y).powi(2)).sum()
 }
 
+/// Compute new centroids based on current cluster assignments
+///
+/// # Arguments
+///
+/// * `data` - A slice of vectors, where each vector represents a data point
+/// * `clusters` - The current cluster assignments for each data point
+/// * `k` - The number of clusters
+///
+/// # Returns
+///
+/// A vector of new centroids
 fn compute_centroids(data: &[Vec<f64>], clusters: &[usize], k: usize) -> Vec<Vec<f64>> {
     let mut result = Vec::new();
     let feature_len = data.first().unwrap_or(&vec![]).len();

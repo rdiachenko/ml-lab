@@ -1,9 +1,23 @@
+//! Image Compression using K-Means Clustering
+//!
+//! This program shows how to use k-means clustering to compress an image
+//! by reducing the number of colors used in the image.
+
 use image::{DynamicImage, GenericImageView, Rgb};
 use k_means::CentroidInitStrategy;
 use k_means::CentroidInitStrategy::*;
 use std::env;
 use std::str::FromStr;
 
+/// Main function to run the image compression program
+///
+/// Usage: program_name IMAGE K STRATEGY
+/// Example: program_name sky.png 16 m
+///
+/// Arguments:
+/// * IMAGE: Path to the input image file
+/// * K: Number of colors to use in the compressed image
+/// * STRATEGY: Centroid initialization strategy (single letter code)
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -28,6 +42,16 @@ fn main() {
         .unwrap()
 }
 
+/// Parse the centroid initialization strategy from a single letter code
+///
+/// # Arguments
+///
+/// * `s` - A string slice that holds the strategy code
+///
+/// # Returns
+///
+/// * `Some(CentroidInitStrategy)` if the code is valid
+/// * `None` if the code is invalid
 fn parse_strategy(s: &str) -> Option<CentroidInitStrategy> {
     match s {
         "F" | "f" => Some(Forgy),
@@ -40,6 +64,16 @@ fn parse_strategy(s: &str) -> Option<CentroidInitStrategy> {
     }
 }
 
+/// Transform the image into a vector of RGB values
+///
+/// # Arguments
+///
+/// * `image` - A reference to the DynamicImage to be transformed
+///
+/// # Returns
+///
+/// A vector of vectors, where each inner vector represents an RGB pixel
+/// with values normalized to the range `[0, 1]`
 fn transform(image: &DynamicImage) -> Vec<Vec<f64>> {
     image
         .pixels()
@@ -54,14 +88,27 @@ fn transform(image: &DynamicImage) -> Vec<Vec<f64>> {
         .collect()
 }
 
+/// Normalize a u8 color value to the range `[0, 1]`
 fn normalize(val: u8) -> f64 {
     val as f64 / 255.0
 }
 
+/// Denormalize a f64 color value from `[0, 1]` to `[0, 255]`
 fn denormalize(val: f64) -> u8 {
     (val * 255.0) as u8
 }
 
+/// Compress the image using the results of k-means clustering
+///
+/// # Arguments
+///
+/// * `image` - A reference to the original DynamicImage
+/// * `centroids` - A slice of vectors representing the color centroids
+/// * `clusters` - A slice of cluster assignments for each pixel
+///
+/// # Returns
+///
+/// An ImageBuffer containing the compressed image
 fn compress(
     image: &DynamicImage,
     centroids: &[Vec<f64>],

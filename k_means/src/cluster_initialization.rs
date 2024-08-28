@@ -1,9 +1,35 @@
+//! Centroid Initialization Strategies
+//!
+//! This module provides various strategies for initializing centroids in k-means clustering.
+//! It includes several well-known methods, each implemented in its own submodule.
+
 pub mod bradley_fayyad;
 pub mod forgy;
 pub mod kmeanspp;
 pub mod macqueen;
 pub mod maximin;
 
+/// Enum representing different centroid initialization strategies
+///
+/// This enum allows users to select which initialization method to use
+/// when running the k-means algorithm.
+///
+/// # Variants
+///
+/// * `Forgy` - Randomly assigns each data point to one of k clusters
+/// * `MacQueen` - Selects k unique data points at random as initial centroids
+/// * `Maximin` - Iteratively selects points farthest from existing centroids
+/// * `BradleyFayyad` - Runs k-means on subsets of data to find good initial centroids
+/// * `KmeansPP` - Selects initial centroids with probability proportional to their squared distance from existing centroids
+/// * `GreedyKmeansPP` - A variant of KmeansPP that considers multiple candidates at each step
+///
+/// # Example
+///
+/// ```
+/// # use k_means::CentroidInitStrategy;
+/// let strategy = CentroidInitStrategy::KmeansPP;
+/// // Use 'strategy' when initializing your k-means algorithm
+/// ```
 #[derive(Debug)]
 pub enum CentroidInitStrategy {
     Forgy,
