@@ -2,6 +2,7 @@
 name = "k_means"
 version = "0.1.0"
 edition = "2021"
+authors = ["Ruslan Diachenko <ruslan@rdiachenko.com>"]
 
 [dependencies]
 image = "0.25.2"
