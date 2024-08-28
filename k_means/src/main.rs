@@ -44,7 +44,7 @@ fn main() {
         .expect("invalid image path")
         .to_str()
         .expect("invalid image name");
-    let compressed_image_name = format!("{:?}-compressed-{}", strategy, image_name);
+    let compressed_image_name = format!("{:?}-k{}-compressed-{}", strategy, k, image_name);
     let compressed_image_path = env::current_dir()
         .expect("failed to get current directory")
         .join(compressed_image_name);

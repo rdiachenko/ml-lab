@@ -2,3 +2,10 @@
 
 # ml-lab
 A playground for experimenting with and learning about machine learning techniques.
+
+## Algorithms and Applications
+- [K-Means Image Compression](./k_means/README.md)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.

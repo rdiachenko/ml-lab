@@ -12,9 +12,5 @@ target/
 # Added by cargo
 /target
 
-# Images
-*.png
-*.jpg
-
 # IDE
 .idea
