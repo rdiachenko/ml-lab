@@ -91,12 +91,11 @@ Comparison of k-means initialization strategies for image compression (16 Colors
 
 ### Observations
 
-- All compression strategies maintain the overall structure and colors of the original image quite well, considering they're using only 16 colors.
-- Subtle differences can be observed in the sky area, particularly in the rendering of cloud details and color gradients.
-- Greedy k-means++ performs the best, with the lowest Sum of Squared Errors (SSE), indicating it most accurately represents the original image colors.
-- Maximin and Bradley-Fayyad methods follow closely, with only slightly higher SSE values.
-- MacQueen and Forgy methods show noticeably higher SSE values, suggesting they are less effective for this particular image.
-- Original image size is 4.65 MB. Compressed image size is 1 MB. That is 21.5% reduction in size.
+1. Compression reduced image size from 4.65 MB to 1 MB, a 78.5% reduction.
+2. All strategies preserve overall image structure well with only 16 colors.
+3. Greedy k-means++ achieves the lowest Sum of Squared Errors (SSE), closely followed by Maximin and Bradley-Fayyad.
+4. MacQueen and Forgy methods show higher SSE values, indicating less effective compression.
+5. Minor differences are most noticeable in sky details and color gradients.
 
 ## Documentation
 
