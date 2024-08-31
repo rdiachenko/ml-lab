@@ -67,12 +67,12 @@ fn main() {
 /// * `None` if the code is invalid
 fn parse_strategy(s: &str) -> Option<CentroidInitStrategy> {
     match s {
-        "F" | "f" => Some(Forgy),
-        "M" | "m" => Some(MacQueen),
-        "X" | "x" => Some(Maximin),
-        "B" | "b" => Some(BradleyFayyad),
-        "K" | "k" => Some(KmeansPP),
-        "G" | "g" => Some(GreedyKmeansPP),
+        "f" => Some(Forgy),
+        "m" => Some(MacQueen),
+        "x" => Some(Maximin),
+        "b" => Some(BradleyFayyad),
+        "k" => Some(KmeansPP),
+        "g" => Some(GreedyKmeansPP),
         _ => None,
     }
 }

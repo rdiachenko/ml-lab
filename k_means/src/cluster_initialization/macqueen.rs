@@ -29,13 +29,6 @@ use rand::prelude::SliceRandom;
 /// let centroids = init_centroids(&data, k);
 /// assert_eq!(centroids.len(), k);
 /// ```
-///
-/// # Note
-///
-/// While this method is fast, it doesn't guarantee an optimal starting position
-/// for the k-means algorithm. In some cases, especially with small datasets or
-/// unlucky selections, it might lead to slower convergence or suboptimal final
-/// clustering results compared to more sophisticated initialization methods.
 pub fn init_centroids(data: &[Vec<f64>], k: usize) -> Vec<Vec<f64>> {
     let mut rng = rand::thread_rng();
     data.choose_multiple(&mut rng, k).cloned().collect()

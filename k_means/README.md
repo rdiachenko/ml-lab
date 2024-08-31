@@ -59,12 +59,12 @@ Where:
 - `IMAGE` is the path to your input image file
 - `K` is the number of colors to use in the compressed image
 - `STRATEGY` is a single letter code for the centroid initialization strategy:
-    - `F` or `f`: Forgy
-    - `M` or `m`: MacQueen
-    - `X` or `x`: Maximin
-    - `B` or `b`: Bradley-Fayyad
-    - `K` or `k`: K-means++
-    - `G` or `g`: Greedy K-means++
+    - `f`: Forgy
+    - `m`: MacQueen
+    - `x`: Maximin
+    - `b`: Bradley-Fayyad
+    - `k`: K-means++
+    - `g`: Greedy K-means++
 
 Example:
 
