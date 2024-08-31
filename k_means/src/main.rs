@@ -9,6 +9,7 @@ use k_means::CentroidInitStrategy::*;
 use std::env;
 use std::path::Path;
 use std::str::FromStr;
+use std::time::Instant;
 
 /// Main function to run the image compression program
 ///
@@ -35,8 +36,19 @@ fn main() {
     let original_img = image::open(image_path).expect("failed to open image");
     let img_data = transform(&original_img);
 
+    println!(
+        "Running k-means clustering for k={} and initialization method: {:?}",
+        k, strategy
+    );
+    let start_time = Instant::now();
     let (centroids, clusters, sse, iters) = k_means::cluster(&img_data, k, &strategy);
-    println!("Converged in {} iterations, sse={}", iters, sse);
+    println!(
+        "Converged in {:.2?} iterations={}, sse={}",
+        start_time.elapsed(),
+        iters,
+        sse
+    );
+
     let compressed_img = compress(&original_img, &centroids, &clusters);
 
     let image_name = image_path

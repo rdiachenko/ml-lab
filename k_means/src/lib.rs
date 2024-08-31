@@ -52,7 +52,6 @@ pub fn cluster(
     k: usize,
     init_strategy: &CentroidInitStrategy,
 ) -> (Vec<Vec<f64>>, Vec<usize>, f64, usize) {
-    println!("finding initial clusters");
     let initial_centroids = match init_strategy {
         Forgy => forgy::init_centroids(data, k),
         MacQueen => macqueen::init_centroids(data, k),
@@ -61,7 +60,6 @@ pub fn cluster(
         KmeansPP => kmeanspp::init_centroids(data, k, 1),
         GreedyKmeansPP => kmeanspp::init_centroids(data, k, 0),
     };
-    println!("running k-means clustering");
     run_k_means(data, &initial_centroids, MAX_ITERATIONS, EPS)
 }
 
