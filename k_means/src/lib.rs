@@ -96,24 +96,22 @@ fn run_k_means(
     let mut sse = f64::MAX;
     let mut iters = 0;
     for _i in 0..max_iters {
-        let (cur_clusters, cur_sse) = compute_clusters(data, &centroids);
-        let converged = (sse - cur_sse) / cur_sse < eps;
-        sse = cur_sse;
+        clusters = compute_clusters(data, &centroids);
+        centroids = compute_centroids(data, &clusters, k);
+        let prev_sse = sse;
+        sse = compute_sse(data, &clusters, &centroids);
         iters += 1;
-        clusters = cur_clusters;
-        println!("iteration {}/{}, sse {}", iters, max_iters, sse);
-        if converged {
+
+        if (prev_sse - sse) / sse < eps {
             break;
         }
-        centroids = compute_centroids(data, &clusters, k);
     }
     (centroids, clusters, sse, iters)
 }
 
 /// Assign data points to the nearest centroid
 ///
-/// This function computes the cluster assignments for each data point
-/// and calculates the Sum of Squared Errors (SSE).
+/// This function computes the cluster assignments for each data point.
 ///
 /// # Arguments
 ///
@@ -122,26 +120,20 @@ fn run_k_means(
 ///
 /// # Returns
 ///
-/// A tuple containing:
-/// * The cluster assignments for each data point (`Vec<usize>`)
-/// * The Sum of Squared Errors (SSE) (f64)
-fn compute_clusters(data: &[Vec<f64>], centroids: &[Vec<f64>]) -> (Vec<usize>, f64) {
-    let mut clusters: Vec<usize> = vec![0; data.len()];
-    let mut sse = 0f64;
+/// The cluster assignments for each data point (`Vec<usize>`)
+fn compute_clusters(data: &[Vec<f64>], centroids: &[Vec<f64>]) -> Vec<usize> {
+    let mut result: Vec<usize> = vec![0; data.len()];
     for point in 0..data.len() {
         let mut min_dist = f64::MAX;
         for (idx, centroid) in centroids.iter().enumerate() {
             let dist = squared_euclidean_dist(&data[point], centroid);
             if dist < min_dist {
                 min_dist = dist;
-                clusters[point] = idx;
+                result[point] = idx;
             }
         }
-        if min_dist < f64::MAX {
-            sse += min_dist;
-        }
     }
-    (clusters, sse)
+    result
 }
 
 /// Compute the squared Euclidean distance between two points
@@ -193,6 +185,30 @@ fn compute_centroids(data: &[Vec<f64>], clusters: &[usize], k: usize) -> Vec<Vec
     result
 }
 
+/// Computes the Sum of Squared Errors (SSE) for given clusters.
+///
+/// The SSE is a measure of the quality of the clustering, where lower values indicate
+/// a better fit. It's calculated as the sum of the squared distances between each data point
+/// and its assigned cluster centroid.
+///
+/// # Arguments
+///
+/// * `data` - A slice of vectors, where each vector represents a data point.
+/// * `clusters` - A slice of cluster assignments, where each element is the index of the
+///                centroid that the corresponding data point is assigned to.
+/// * `centroids` - A slice of vectors, where each vector represents a cluster centroid.
+///
+/// # Returns
+///
+/// Returns a `f64` value representing the total Sum of Squared Errors for the clustering.
+fn compute_sse(data: &[Vec<f64>], clusters: &[usize], centroids: &[Vec<f64>]) -> f64 {
+    clusters
+        .iter()
+        .zip(data.iter())
+        .map(|(cluster, point)| squared_euclidean_dist(point, &centroids[*cluster]))
+        .sum()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -201,7 +217,6 @@ mod tests {
     fn test_squared_euclidean_dist_basic() {
         let a = vec![0.0, 0.0];
         let b = vec![3.0, 4.0];
-        // Basic test case, distance should be 3^2 + 4^2 = 25
         assert_eq!(squared_euclidean_dist(&a, &b), 25.0);
     }
 
@@ -209,7 +224,6 @@ mod tests {
     fn test_squared_euclidean_dist_with_zeros() {
         let a = vec![0.0, 0.0];
         let b = vec![0.0, 0.0];
-        // Both vectors are zeros, distance should be 0
         assert_eq!(squared_euclidean_dist(&a, &b), 0.0);
     }
 
@@ -217,7 +231,6 @@ mod tests {
     fn test_squared_euclidean_dist_negative_numbers() {
         let a = vec![-1.0, -2.0];
         let b = vec![-3.0, -4.0];
-        // Test case with negative numbers, distance should be (-1+3)^2 + (-2+4)^2 = 2^2 + 2^2 = 8
         assert_eq!(squared_euclidean_dist(&a, &b), 8.0);
     }
 
@@ -225,7 +238,6 @@ mod tests {
     fn test_squared_euclidean_dist_mixed_values() {
         let a = vec![1.0, -1.0];
         let b = vec![-1.0, 1.0];
-        // Mixed values, distance should be (1+1)^2 + (-1-1)^2 = 2^2 + 2^2 = 8
         assert_eq!(squared_euclidean_dist(&a, &b), 8.0);
     }
 
@@ -238,51 +250,37 @@ mod tests {
             vec![6.0, 5.5],
         ];
         let centroids = vec![vec![1.0, 2.0], vec![5.5, 5.25]];
-
-        let (clusters, sse) = compute_clusters(&data, &centroids);
+        let clusters = compute_clusters(&data, &centroids);
 
         assert_eq!(clusters, vec![0, 0, 1, 1]);
-
-        // Manual calculation of SSE
-        let expected_sse = squared_euclidean_dist(&data[0], &centroids[0])
-            + squared_euclidean_dist(&data[1], &centroids[0])
-            + squared_euclidean_dist(&data[2], &centroids[1])
-            + squared_euclidean_dist(&data[3], &centroids[1]);
-        assert!((sse - expected_sse).abs() < 1e-6); // using a small threshold to avoid floating-point precision issues
     }
 
     #[test]
     fn test_compute_clusters_empty_data() {
         let data: Vec<Vec<f64>> = vec![];
         let centroids = vec![vec![1.0, 2.0], vec![3.0, 4.0]];
-
-        let (clusters, sse) = compute_clusters(&data, &centroids);
+        let clusters = compute_clusters(&data, &centroids);
 
         assert!(clusters.is_empty());
-        assert_eq!(sse, 0.0);
     }
 
     #[test]
     fn test_compute_clusters_no_centroids() {
         let data = vec![vec![1.0, 2.0], vec![1.5, 2.5]];
         let centroids: Vec<Vec<f64>> = vec![];
-
-        let (clusters, sse) = compute_clusters(&data, &centroids);
+        let clusters = compute_clusters(&data, &centroids);
 
         // Expect default cluster assignment (index 0) and no error computation if centroids are empty
         assert!(clusters.iter().all(|&x| x == 0));
-        assert_eq!(sse, 0.0);
     }
 
     #[test]
     fn test_compute_clusters_data_equals_centroids() {
         let data = vec![vec![1.0, 2.0], vec![3.0, 4.0]];
         let centroids = data.clone();
-
-        let (clusters, sse) = compute_clusters(&data, &centroids);
+        let clusters = compute_clusters(&data, &centroids);
 
         assert_eq!(clusters, vec![0, 1]);
-        assert_eq!(sse, 0.0); // Perfect match between data points and centroids should result in 0 SSE
     }
 
     #[test]
@@ -385,5 +383,27 @@ mod tests {
         let (_, _, _, iters) = run_k_means(&data, &initial_centroids, max_iters, eps);
 
         assert!(iters < max_iters); // Should converge before reaching max_iters
+    }
+
+    #[test]
+    fn test_compute_sse() {
+        let data = vec![
+            vec![1.0, 1.0],
+            vec![2.0, 2.0],
+            vec![10.0, 10.0],
+            vec![11.0, 11.0],
+        ];
+        let clusters = vec![0, 0, 1, 1];
+        let centroids = vec![vec![1.5, 1.5], vec![10.5, 10.5]];
+
+        let expected_sse = 2.0;
+        let computed_sse = compute_sse(&data, &clusters, &centroids);
+
+        assert!(
+            (computed_sse - expected_sse).abs() < 1e-6,
+            "Computed SSE {} does not match expected SSE {}",
+            computed_sse,
+            expected_sse
+        );
     }
 }
