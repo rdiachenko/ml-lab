@@ -9,27 +9,11 @@ fi
 
 IMAGE_FILE=$1
 STRATEGIES=("f" "m" "x" "b" "k" "g")
-K_VALUES=(64 16 8 2)
-
-get_strategy_name() {
-    case $1 in
-        f) echo "Forgy" ;;
-        m) echo "MacQueen" ;;
-        x) echo "Maximin" ;;
-        b) echo "BradleyFayyad" ;;
-        k) echo "KmeansPP" ;;
-        g) echo "GreedyKmeansPP" ;;
-        *) echo "Unknown" ;;
-    esac
-}
+K_VALUES=(16)
 
 for strategy in "${STRATEGIES[@]}"; do
     for k in "${K_VALUES[@]}"; do
-        strategy_name=$(get_strategy_name $strategy)
-        echo "Compressing image using strategy: $strategy_name, k: $k"
         cargo run --package k_means --release -- "$IMAGE_FILE" $k $strategy
-        echo "Compression complete for $strategy_name, k: $k"
-        echo "----------------------------------------"
     done
 done
 
