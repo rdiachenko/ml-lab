@@ -2,6 +2,8 @@
 
 Implements a k-means clustering algorithm and applies it to image compression. It provides various centroid initialization strategies and allows to compress images by reducing the number of colors used.
 
+For a detailed walkthrough on how I used k-means for image compression, check out [this post](https://www.rdiachenko.com/posts/ml/k-means-image-compression/).
+
 ## Features
 
 - Implements k-means clustering algorithm
